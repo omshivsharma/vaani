@@ -1,0 +1,7 @@
+soundcard>=0.4.3
+edge-tts>=7.0
+miniaudio>=1.61
+numpy>=1.26
+pywinauto>=0.6.9
+pycaw>=20240210
+psutil>=5.9

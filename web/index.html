@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaani</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="side">
+    <div class="brand"><span class="logo">व</span> Vaani <small>calling agent</small></div>
+    <a data-page="home" class="active"><span class="ic">⌂</span> Home</a>
+    <a data-page="contacts"><span class="ic">1</span> Contacts <i class="chk" id="chk-contacts"></i></a>
+    <a data-page="message"><span class="ic">2</span> Message <i class="chk" id="chk-message"></i></a>
+    <a data-page="voice"><span class="ic">3</span> Voice <i class="chk" id="chk-voice"></i></a>
+    <a data-page="practice"><span class="ic">4</span> Practice call</a>
+    <a data-page="console"><span class="ic">5</span> Call &amp; send</a>
+    <a data-page="results"><span class="ic">6</span> Results</a>
+    <a data-page="settings" class="bottom"><span class="ic">⚙</span> Settings <i class="chk" id="chk-settings"></i></a>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section class="page" id="page-home">
+      <h1>Namaste<span id="helloOwner"></span> 👋</h1>
+      <p class="lead">Vaani calls your contacts, speaks your message, listens to their answer and notes what they said. It can also send the same invitation on WhatsApp and SMS.</p>
+      <div class="steps" id="homeSteps"></div>
+      <div class="howit">
+        <h3>How a call works</h3>
+        <ol>
+          <li>Vaani dials the number from <b>your own phone</b> through Windows Phone Link (free, uses your SIM).</li>
+          <li>When they pick up, it plays your opening line, in <b>your recorded voice</b> if you recorded one.</li>
+          <li>It listens, understands with Gemini (free tier), and replies in a natural Indian voice.</li>
+          <li>When it's done, it saves the outcome (coming / not coming / call back…) and a short note.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section class="page hidden" id="page-contacts">
+      <h1>Who should Vaani contact?</h1>
+      <div class="grid2">
+        <div class="card">
+          <h3>Import from Gmail</h3>
+          <p class="muted">contacts.google.com → <b>Export</b> → <b>Google CSV</b>. Then drop the file here.</p>
+          <label class="drop" id="drop"><input type="file" id="csvFile" accept=".csv" hidden>
+            <span>⬆ Drop contacts.csv here or <u>browse</u></span></label>
+          <p class="muted small" id="importInfo"></p>
+        </div>
+        <div class="card">
+          <h3>Or add by hand</h3>
+          <p class="muted">One per line: <code>Name, phone</code></p>
+          <textarea id="manualList" rows="4" placeholder="Rahul Sharma, 98765 43210&#10;Priya, +91 98765 11111"></textarea>
+          <button id="addManual">Add to guest list</button>
+        </div>
+      </div>
+
+      <div class="card hidden" id="pickerCard">
+        <div class="row between"><h3>Pick from your Gmail contacts</h3><span class="muted" id="pickCount"></span></div>
+        <details class="paste">
+          <summary>Have a list of names? Paste it to tick everyone at once</summary>
+          <textarea id="guestNames" rows="4" placeholder="One name per line"></textarea>
+          <div class="row"><button id="matchNames">Tick matching contacts</button><span class="small" id="matchInfo"></span></div>
+        </details>
+        <div class="row">
+          <input type="search" id="pickSearch" class="grow" placeholder="Search name or number">
+          <select id="pickLabel"><option value="">All labels</option></select>
+          <button id="pickAll">Tick all shown</button>
+        </div>
+        <div class="list" id="pickList"></div>
+        <div class="row end"><button class="primary" id="addPicked">Add ticked to guest list →</button></div>
+      </div>
+
+      <div class="card">
+        <div class="row between"><h3>Guest list <span class="pill" id="guestCount">0</span></h3>
+          <button class="ghost danger" id="clearGuests">Clear list</button></div>
+        <div class="list" id="guestList"></div>
+      </div>
+    </section>
+
+    <!-- MESSAGE -->
+    <section class="page hidden" id="page-message">
+      <div class="row between"><h1>What should Vaani say?</h1><span class="saved" id="savedMsg"></span></div>
+      <p class="muted">Use <code>{first}</code>, <code>{name}</code> and <code>{owner}</code>. They are filled in for each person.</p>
+      <div class="grid2">
+        <div class="card">
+          <label>Your name (who the call is from)</label>
+          <input id="owner" placeholder="e.g. Omshiv">
+          <label>Campaign name</label>
+          <input data-c="name">
+          <label>Language</label>
+          <div class="seg" id="langSeg">
+            <button data-v="Hinglish">Hinglish</button><button data-v="Hindi">Hindi</button><button data-v="English">English</button>
+          </div>
+          <label>Goal of the call</label>
+          <textarea data-c="goal" rows="2"></textarea>
+          <label>Facts Vaani can share (event, date, venue…)</label>
+          <textarea data-c="facts" rows="6"></textarea>
+        </div>
+        <div class="card">
+          <label>Opening line (first thing it says)</label>
+          <textarea data-c="opening" rows="4"></textarea>
+          <label>Closing line</label>
+          <textarea data-c="closing" rows="2"></textarea>
+          <label>Extra instructions / FAQs</label>
+          <textarea data-c="instructions" rows="4"></textarea>
+          <label>Outcomes to record</label>
+          <input data-c="outcomes">
+        </div>
+      </div>
+      <div class="card">
+        <div class="row between"><h3>Cross-questions (Q&amp;A) <span class="pill" id="faqCount">0</span></h3><span class="saved" id="savedFaq"></span></div>
+        <p class="muted">What guests might ask, and the answer Vaani should give. Write answers in any language; Vaani says them in the call's language. A question with an <b>empty answer is ignored</b>, so fill in the ones you know and leave the rest.</p>
+        <div class="row" id="faqSuggest"></div>
+        <div id="faqList"></div>
+        <div class="row" style="margin-top:10px"><button id="faqAdd">+ Add your own question</button></div>
+      </div>
+      <div class="card">
+        <h3>WhatsApp &amp; SMS versions</h3>
+        <div class="grid2">
+          <div><label>WhatsApp message</label><textarea data-c="wa_template" rows="7"></textarea></div>
+          <div><label>SMS message <span class="muted small" id="smsLen"></span></label><textarea data-c="sms_template" rows="7"></textarea></div>
+        </div>
+      </div>
+      <div class="card preview-card">
+        <h3>Preview for <span id="pvName">a guest</span></h3>
+        <div class="bubble agent" id="pvOpening"></div>
+      </div>
+    </section>
+
+    <!-- VOICE -->
+    <section class="page hidden" id="page-voice">
+      <h1>How should Vaani sound?</h1>
+      <div class="card">
+        <div class="row between"><h3>Your voice library <span class="tag">recommended</span></h3><span class="pill" id="libCount"></span></div>
+        <p class="bigask hidden" id="micWarn" style="text-align:left"></p>
+        <p class="muted">Read each line out in your own words and tone; you don't have to match the text exactly. During calls,
+          whenever one of these lines fits, Vaani plays <b>your recording</b>: your real voice, no delay, names said your way.
+          Lines you haven't recorded yet are spoken by the AI voice. Keep each one short. Q&amp;A answers appear here once you fill them in on the Message page.</p>
+        <div id="library"></div>
+      </div>
+      <div class="card">
+        <div class="row between"><h3>Pronunciation of names</h3><span class="saved" id="savedPron"></span></div>
+        <p class="muted">Write each name the way it's written in English, and how it should sound in Hindi script. Vaani always says it that way.
+          Press ▶ to hear it. (Tested: without this, the English voice said "Omshiv" as "Umesh Shiv".)</p>
+        <div id="pronList"></div>
+        <div class="row" style="margin-top:8px"><button id="pronAdd">+ Add a name</button></div>
+      </div>
+      <div class="card">
+        <h3>AI voice for live replies</h3>
+        <div class="voices" id="voiceList"></div>
+        <label>Speed</label>
+        <div class="seg" id="rateSeg"><button data-v="-10%">Slower</button><button data-v="+0%">Normal</button><button data-v="+10%">Faster</button></div>
+        <div class="row" style="margin-top:12px"><button id="previewVoice">▶ Hear the opening in this voice</button><span class="muted small" id="pvStatus"></span></div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="page hidden" id="page-practice">
+      <h1>Test &amp; practice</h1>
+      <div class="card">
+        <h3>🤖 Full test call <span class="tag">no phone needed</span></h3>
+        <p class="muted">An AI guest picks up and talks to Vaani like a real relative would. It asks questions, cross-questions and gives an answer. This uses Vaani's real brain, voice and listening, so it's the closest thing to a real call. Results are not saved to your guest list.</p>
+        <div class="row">
+          <label class="inline">Guest type</label>
+          <select id="simPersona" class="grow"></select>
+          <label class="inline"><input type="checkbox" id="simAloud" checked style="width:auto"> Play both voices on my speaker</label>
+          <button class="primary big" id="simStart">▶ Start full test call</button>
+        </div>
+      </div>
+      <h3 style="margin-top:22px">🎙 Practice call (you play the guest)</h3>
+      <p class="bigask hidden" id="practiceWarn" style="text-align:left"></p>
+      <p class="lead">Talk to Vaani through your laptop mic, as if you were the guest. Nobody is dialled. <b>Use earphones</b> so it doesn't hear itself.</p>
+      <div class="card">
+        <div class="row">
+          <label class="inline">Pretend to be</label>
+          <select id="practiceAs" class="grow"></select>
+          <button class="primary big" id="practiceStart">🎙 Start practice call</button>
+        </div>
+      </div>
+      <div class="live" id="practiceLive"></div>
+    </section>
+
+    <!-- CONSOLE -->
+    <section class="page hidden" id="page-console">
+      <div class="console">
+        <div class="queue card">
+          <div class="row between"><h3>Guests</h3>
+            <select id="qFilter"><option value="todo">To call</option><option value="all">All</option><option value="done">Done</option></select></div>
+          <input type="search" id="qSearch" placeholder="Search">
+          <div class="qlist" id="qList"></div>
+        </div>
+        <div class="stage">
+          <div class="card" id="autoCard"></div>
+          <div class="card" id="stageCard"></div>
+          <div class="live" id="phoneLive"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="page hidden" id="page-results">
+      <div class="row between"><h1>Results</h1><a class="btn" href="/api/report.csv" download="vaani-report.csv">⬇ Download report (CSV)</a></div>
+      <div class="stats" id="stats"></div>
+      <div class="card hidden" id="unansweredCard">
+        <h3>Questions Vaani couldn't answer</h3>
+        <p class="muted small">Add an answer once and Vaani will know it on every call after that.</p>
+        <div id="unansweredList"></div>
+      </div>
+      <div class="card"><h3>Call log</h3><div id="callLog"></div></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page hidden" id="page-settings">
+      <h1>Settings</h1>
+      <div class="card">
+        <h3>1. Gemini key (free) <span id="keyState"></span></h3>
+        <p class="muted">This is Vaani's brain. Get a free key at <b>aistudio.google.com/apikey</b> → Create API key, and paste it here. It's saved only in <code>vaani/.env</code> on this laptop.</p>
+        <div class="row"><input type="password" id="keyInput" class="grow" placeholder="Paste key"><button id="saveKey" class="primary">Save key</button></div>
+        <label>Model</label><input id="model">
+      </div>
+      <div class="card">
+        <h3>2. Phone bridge (for real calls) <span id="cableState"></span></h3>
+        <ol class="setup">
+          <li>Open <b>Phone Link</b> on this laptop, link your Android phone, and turn on <b>Calls</b> (it pairs over Bluetooth).</li>
+          <li>Install <b>VB-Audio Virtual Cable</b> (free, from vb-audio.com/Cable), then restart the laptop.</li>
+          <li>Windows Sound settings → <b>Input</b> → choose <b>CABLE Output</b> while Vaani is calling. (Switch back to your normal mic afterwards.)</li>
+          <li>Make a test call to your own second number from <b>Call &amp; send</b>, and check that you hear Vaani on the other phone.</li>
+        </ol>
+        <div class="grid2">
+          <div><label>Vaani's voice goes to</label><select id="outDev"></select></div>
+          <div><label>Vaani listens to the call on</label><select id="inDev"></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>3. Calling rules</h3>
+        <div class="grid2">
+          <div><label>Country code for 10-digit numbers</label><input id="cc"></div>
+          <div><label>Allowed calling hours</label>
+            <div class="row"><input id="hLo" type="number" min="0" max="23" style="width:80px"> to <input id="hHi" type="number" min="1" max="24" style="width:80px"></div></div>
+        </div>
+        <p class="muted small">People who say "don't call me" are marked <b>do not call</b> and skipped automatically.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast hidden" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
